@@ -10,7 +10,7 @@ Airline::Airline() {
     name = "";
     country = "";
     active = false;
-    airRoutes = std::vector<Route*>();
+    airRoutes = std::deque<Route*>();
 }
 
 Airline::Airline(unsigned int _id, std::string _icao, std::string _name, std::string _country, bool _active):
@@ -103,4 +103,8 @@ const std::string &Airline::getName() const {
 
 const std::string &Airline::getCountry() const {
     return country;
+}
+
+void Airline::setDownAirline() {
+    airRoutes = std::deque<Route*>();
 }

@@ -20,7 +20,8 @@ int main() {
 
     VuelaFlight dataBase("..\\aeropuertos_v3.csv", "..\\rutas_v1.csv", "..\\aerolineas_v1.csv");
     std::cout << std::endl;
-
+    std::cout << "Size of vector table "<< dataBase.getAirports().size() << std::endl;
+    std::cout << "Size of vector table "<< dataBase.getNumAirports() << std::endl;
 
 
     std::cout << "----- End of the program -----" << std::endl;

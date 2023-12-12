@@ -10,6 +10,7 @@
 #include <list>
 #include <iterator>
 #include <map>
+#include <set>
 #include "ThashAirp.h"
 #include "Airport.h"
 #include "Route.h"
@@ -44,13 +45,28 @@ public:
 
     Airline& searchAirline(std::string airlineIcao);
 
+    //std::vector<Airline> searchActiveAirline();
+
+    bool flightRegister(std::string fNmber, std::string origAirpIata, std::string destAirpIata, std::string plane, std::string weatherData, Date f);
+
+    void loadFlights(std::string file);
+
+    std::vector<Flight> searchFlights(std::string fNumber);
+
+    std::vector<Flight> flightsOperatedBy(std::string icaoAirline, Date dat);
+
+    std::set<std::string> searchFlightsDestAirp(std::string origCountry, std::string iataDestAirp);
+
     const std::vector<Airport> getAirports();
+
+    const ThashAirp getAirportsHash();
 
     void deleteAirport(std::string iataAirport);
 
     void deleteInactiveAirports();
 
-    //std::vector<Airline> searchActiveAirline();
+
+
 };
 
 

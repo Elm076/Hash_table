@@ -108,7 +108,7 @@ VuelaFlight::VuelaFlight(std::string airports_file, std::string routes_file, std
 
         airports_stream.close();
 
-        std::cout << " AVL with airlines initialized" << std::endl << "Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
+        std::cout << " MAP with airlines initialized" << std::endl << "Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
     } else {
         std::cout << "Fatal error opening the file" << std::endl;
     }
@@ -185,6 +185,13 @@ const std::vector<Airport> VuelaFlight::getAirports() {
 }
 
 void VuelaFlight::deleteAirport(std::string iataAirport) {
+    // Found all the elements associated with the airport to delete
+    auto origRange = origRoutes.equal_range(iataAirport);
+    auto destRange = destRoutes.equal_range(iataAirport);
+
+    // Delete all of them
+    origRoutes.erase(origRange.first, origRange.second);
+    destRoutes.erase(destRange.first, destRange.first);
     if (airports.pop(iataAirport)){
         std::cout << "Airport " << iataAirport << " deleted" << std::endl;
     }
@@ -288,4 +295,115 @@ std::vector<Airline> VuelaFlight::searchActiveAirline() {
     return result;
 }
 */
+
+bool VuelaFlight::flightRegister(std::string fNmber, std::string origAirpIata, std::string destAirpIata,
+                                 std::string plane, std::string weatherData, Date f) {
+
+    std::string fliIcao(fNmber.substr(0,3));
+
+    Airline *company = &airlines[fliIcao];
+    if (*company != Airline()){
+        Flight flight(fNmber,
+                      company,
+                      airports.search(origAirpIata),
+                      airports.search(destAirpIata),
+                      plane,
+                      weatherData,
+                      f);
+
+        if (&flight != company->addFlight(flight))
+            return true;
+        return false;
+    }
+    std::cout << "---ERROR--- in flightRegister(); The Airline: " << fliIcao << " found in flight " << fNmber << " does not exist." << std::endl;
+    return false;
+}
+
+void VuelaFlight::loadFlights(std::string file) {
+    std::ifstream flights_stream;
+
+    flights_stream.open(file); //project folder
+    if (flights_stream.good()) {
+        std::string flightNumb;
+        std::string orig_airport;
+        std::string dest_airport;
+        std::string plane;
+        std::string weatherData;
+        std::string day;
+        std::string month;
+        std::string year;
+        std::stringstream columns_flights;
+        std::string line;
+
+        clock_t t_ini = clock();
+
+        while (getline(flights_stream, line)) {
+
+            //¿Exists a new line on the file?
+            if (!line.empty()) {
+
+                columns_flights.str(line);
+
+                //Line format: id;iata;type;size;fecha;country_iso
+
+                getline(columns_flights, flightNumb, ';'); //we readAVL the line till ';' and omit the caracter
+                getline(columns_flights, orig_airport, ';');
+                getline(columns_flights, dest_airport, ';');
+                getline(columns_flights, plane, ';');
+                getline(columns_flights, weatherData, ';');
+                getline(columns_flights, day, '/');
+                getline(columns_flights, month, '/');
+                getline(columns_flights, year, ' ');
+
+                line = "";
+                columns_flights.clear();
+
+                Date real_date(stoul(day),stoul(month),stoul(year));
+                flightRegister(flightNumb,orig_airport,dest_airport,plane,weatherData,real_date);
+            }
+
+        }
+
+        flights_stream.close();
+
+        std::cout << " List with flights initialized." << std::endl << " Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
+    } else {
+        std::cout << "Fatal error opening the file" << std::endl;
+    }
+}
+
+std::vector<Flight> VuelaFlight::searchFlights(std::string fNumber) {
+    std::string icao(fNumber.substr(0,3));
+    return airlines.find(icao)->second.getFlights(fNumber);
+}
+
+std::vector<Flight> VuelaFlight::flightsOperatedBy(std::string icaoAirline, Date dat) {
+    std::vector<Flight> result;
+    Airline targetAirline = airlines.find(icaoAirline)->second;
+    Date begin = dat, end = dat;
+    begin.asignarDia(dat.verDia()-1,dat.verMes(),dat.verAnio());
+    end.anadirDias(1);
+
+    return targetAirline.getFlights(begin, end);
+}
+
+std::set<std::string> VuelaFlight::searchFlightsDestAirp(std::string origCountry, std::string iataDestAirp) {
+    std::set<std::string> result;
+    auto allAirpCountry = countryAirportSearch(origCountry);
+    std::vector<Route> routesFound;
+    try{
+        for (unsigned int i = 0; i < allAirpCountry.size(); i++){
+            routesFound.push_back(origDestRoutesSearch(allAirpCountry[i].getIata(),iataDestAirp));
+        }
+    }
+    catch (std::invalid_argument err){
+        std::cout << err.what() << std::endl;
+    }
+    for (unsigned int i = 0; i < routesFound.size(); i++){
+        for(auto it = routesFound[i].getFlights().begin(); i < routesFound[i].getFlightsNum(); i++)
+            result.insert(it.operator*()->getFlightNumb());
+    }
+
+    return result;
+}
 

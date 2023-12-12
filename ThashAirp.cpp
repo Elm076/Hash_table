@@ -6,7 +6,19 @@
 #include "math.h"
 
 int ThashAirp::hash(unsigned long key, unsigned int attempt) {
-    return doubleDisp(key,attempt);
+    //h1(x)
+    //int prime1 = 7079;
+    //return ((key % maxElements) + (attempt*((key%prime1)+1)))%maxElements;
+
+    //h2(x)
+    //int prime2 = 997;
+    //return ((key%maxElements)+(attempt*(prime2-(key%prime2)+1)))%maxElements;
+
+    //h3(x)
+    return (key%maxElements+attempt * (unsigned int)sqrt(key + attempt*attempt))%maxElements;
+
+    //h4(x)
+    //return (key+attempt*attempt)%maxElements;
 }
 
 unsigned long int ThashAirp::doubleDisp(unsigned long key, unsigned int attempt) const {
@@ -162,7 +174,7 @@ unsigned int ThashAirp::getSize() {
 
 std::vector<Airport> ThashAirp::getAirports() {
     std::vector<Airport> result;
-    for (unsigned int i = 0; i < size; i++){
+    for (unsigned int i = 0; i < vector.size(); i++){
         if (vector[i].state == taken){
             result.push_back(vector[i].airport);
         }

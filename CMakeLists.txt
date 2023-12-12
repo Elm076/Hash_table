@@ -24,4 +24,8 @@ add_executable(Hash_table
         VuelaFlight.cpp
         VuelaFlight.h
         ThashAirp.h
-        ThashAirp.cpp)
+        ThashAirp.cpp
+        fecha.cpp
+        fecha.h
+        Flight.cpp
+        Flight.h)

@@ -29,16 +29,37 @@ void Route::setDestination(Airport *destination) {
 }
 
 Route::Route(Airline* _company, Airport* _origin, Airport* _destination) :
-    company(_company),
-    origin(_origin),
-    destination(_destination)
-    {}
+        company(_company),
+        origin(_origin),
+        destination(_destination)
+{}
 
 Route::Route(const Route &other) {
     this->company = other.company;
     this->origin = other.origin;
     this->destination = other.destination;
     this->company = other.company;
+}
+
+unsigned int Route::getFlightsNum() {
+    return flightRoute.size();
+}
+
+bool Route::addFlight(Flight& fli) {
+    if (company == fli.getAirline()
+        and
+        origin == fli.getAirpOrig()
+        and
+        destination == fli.getAirpDest()) {
+
+        flightRoute.push_back(&fli);
+        return true;
+    }
+    return false;
+}
+
+std::list<Flight*> Route::getFlights() {
+    return flightRoute;
 }
 
 Route::~Route() = default;
