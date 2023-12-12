@@ -165,6 +165,8 @@ VuelaFlight::VuelaFlight(std::string airports_file, std::string routes_file, std
 
         airports_stream.close();
 
+        loadFlights("..\\infovuelos_v1.csv");
+
         std::cout << " Linked_list with routes initialized" << std::endl <<"Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
     } else {
         std::cout << "Fatal error opening the file" << std::endl;
@@ -199,6 +201,12 @@ void VuelaFlight::deleteAirport(std::string iataAirport) {
         std::cout << "Airport " << iataAirport << " NOT deleted, it wasn't stored in the database" << std::endl;
     }
 }
+
+void VuelaFlight::addAirport(Airport &airp) {
+    std::string iataToPush = airp.getIata();
+    airports.push(iataToPush,airp);
+}
+
 /*
 Route& VuelaFlight::origDestRoutesSearch(const std::string& airportIataOrig, const std::string& airportIataDest) {
     std::list<Route>::iterator iterator = routes.begin();
@@ -386,10 +394,11 @@ std::vector<Flight> VuelaFlight::flightsOperatedBy(std::string icaoAirline, Date
 
     return targetAirline.getFlights(begin, end);
 }
-
+/*
 std::set<std::string> VuelaFlight::searchFlightsDestAirp(std::string origCountry, std::string iataDestAirp) {
     std::set<std::string> result;
     auto allAirpCountry = countryAirportSearch(origCountry);
+    std::vector<Route> routesFound;
     std::vector<Route> routesFound;
     try{
         for (unsigned int i = 0; i < allAirpCountry.size(); i++){
@@ -406,4 +415,27 @@ std::set<std::string> VuelaFlight::searchFlightsDestAirp(std::string origCountry
 
     return result;
 }
+*/
 
+void VuelaFlight::deleteInactiveAirports() {
+    for (unsigned int i = 0; i < airports.getAirports().size(); i++){
+        std::string iataToSearch= airports.getAirports()[i].getIata();
+        auto const& origSearch = origRoutes.find(iataToSearch);
+        auto const& destSearch = origRoutes.find(iataToSearch);
+        if (!&origSearch->second and !&destSearch->second){
+            airports.pop(iataToSearch);
+        }
+        //std::cout << i << std::endl;
+    }
+}
+
+void VuelaFlight::showTableState() {
+    std::cout << ".....STATE OF THE HASH TABLE....." << std::endl;
+    std::cout << "Size: " << airports.getSize() << std::endl;
+    std::cout << "Charge Factor " << airports.getChargeFactor() << std::endl;
+    std::cout << "Max Collisions " << airports.getMaxColisiones() << std::endl;
+    std::cout << "Total Collisions " << airports.getTotalCollisions() << std::endl;
+    std::cout << "Average Collisions " << airports.getAverageCollisions() << std::endl;
+    std::cout << "Num of 10 collisions "  << airports.getNumMax10() << std::endl <<
+    std::endl;
+}

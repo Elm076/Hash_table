@@ -6,6 +6,7 @@
 #define AVL_AIRLINE_H
 
 #include <string>
+#include <vector>
 #include <map>
 #include <deque>
 #include "Route.h"
@@ -62,7 +63,7 @@ public:
 
     void linkAirRoute(Route* r);
 
-    Flight *addFlight(Flight);
+    Flight* addFlight(Flight);
 
     std::vector<Flight> getFlights(std::string fNumber);
 

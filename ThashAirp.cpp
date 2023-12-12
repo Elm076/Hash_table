@@ -168,10 +168,6 @@ bool ThashAirp::pop(std::string &key) {
     return false;
 }
 
-unsigned int ThashAirp::getSize() {
-    return size;
-}
-
 std::vector<Airport> ThashAirp::getAirports() {
     std::vector<Airport> result;
     for (unsigned int i = 0; i < vector.size(); i++){
@@ -181,3 +177,29 @@ std::vector<Airport> ThashAirp::getAirports() {
     }
     return result;
 }
+
+unsigned int ThashAirp::getMaxColisiones() {
+    return maxCollisions;
+}
+
+unsigned int ThashAirp::getNumMax10() {
+    return collisions10;
+}
+
+float ThashAirp::getAverageCollisions() {
+    return (float)totalCollisions/size;
+}
+
+unsigned int ThashAirp::getTotalCollisions() {
+    return  totalCollisions;
+}
+
+float ThashAirp::getChargeFactor() {
+    lambda = (float)size/maxElements;
+    return lambda;
+}
+
+unsigned int ThashAirp::getSize() {
+    return size;
+}
+

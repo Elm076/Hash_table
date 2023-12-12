@@ -10,13 +10,7 @@ add_executable(Hash_table
         Airline.h
         Airport.cpp
         Airport.h
-        AVL.h
-        Dynamic_container.h
-        Iterator.cpp
-        Iterator.h
-        Linked_list.h
         main.cpp
-        NodeLinkedList.h
         Route.cpp
         Route.h
         UTM.cpp

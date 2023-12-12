@@ -105,6 +105,55 @@ const std::string &Airline::getCountry() const {
     return country;
 }
 
+Flight* Airline::addFlight(Flight fli) {
+    std::string fliIcao(fli.getFlightNumb().substr(0,3));
+    Flight nullFlight = Flight();
+    if (fli == nullFlight or fliIcao != icao or fli.getAirline() != this)
+        return nullptr;
+    else{
+        Flight newFlight(fli);
+        auto new_insert = std::pair<std::string,Flight>(newFlight.getFlightNumb(),newFlight);
+        flights.insert(new_insert);
+
+        auto it = airRoutes.begin();
+
+        while(it != airRoutes.end()){
+            if (it.operator*()->getOrigin() == new_insert.second.getAirpOrig()
+                and
+                it.operator*()->getDestination() == new_insert.second.getAirpDest()){
+
+                it.operator*()->addFlight(newFlight);
+                break;
+            }
+            it++;
+        }
+
+        return &flights.find(fliIcao)->second;
+    }
+}
+
+std::vector<Flight> Airline::getFlights(std::string fNumber) {
+    std::vector<Flight> result;
+    auto range = flights.equal_range(fNumber);
+
+    for (auto it = range.first; it != range.second; it++){
+        result.push_back(it->second);
+    }
+    return result;
+}
+
+std::vector<Flight> Airline::getFlights(const Date& beginDate, const Date& endDate) {
+    std::vector<Flight> result;
+    auto it = flights.begin();
+    while (it != flights.end()){
+        if(it->second.getDate() < endDate and !(it->second.getDate() < beginDate)){
+            result.push_back(it->second);
+        }
+        it++;
+    }
+    return result;
+}
+
 void Airline::setDownAirline() {
     airRoutes = std::deque<Route*>();
 }

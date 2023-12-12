@@ -20,8 +20,26 @@ int main() {
 
     VuelaFlight dataBase("..\\aeropuertos_v3.csv", "..\\rutas_v1.csv", "..\\aerolineas_v1.csv");
     std::cout << std::endl;
-    std::cout << "Size of vector table "<< dataBase.getAirports().size() << std::endl;
-    std::cout << "Size of vector table "<< dataBase.getNumAirports() << std::endl;
+    dataBase.showTableState();
+
+    Airport airpToSearch = dataBase.searchAirport("00AS");
+    if(&airpToSearch) {
+        std::cout   << "AIRPORT FOUND-- His data:" << std::endl <<
+                    "Name " << airpToSearch.getName() << std::endl <<
+                    "Type " << airpToSearch.getType() << std::endl <<
+                    "Country " << airpToSearch.getCountryIso() << std::endl <<
+                    "Continent " << airpToSearch.getContinent() << std::endl;
+
+        dataBase.deleteAirport("00AS");
+        dataBase.showTableState();
+        if(!&dataBase.searchAirport("00AS")){
+            dataBase.addAirport(airpToSearch);
+        }
+        dataBase.showTableState();
+    }
+
+    dataBase.deleteInactiveAirports();
+    dataBase.showTableState();
 
 
     std::cout << "----- End of the program -----" << std::endl;

@@ -15,6 +15,7 @@
 #include "Airport.h"
 #include "Route.h"
 #include "Airline.h"
+#include "Flight.h"
 
 class VuelaFlight {
 private:
@@ -63,9 +64,11 @@ public:
 
     void deleteAirport(std::string iataAirport);
 
+    void addAirport(Airport& airp);
+
     void deleteInactiveAirports();
 
-
+    void showTableState();
 
 };
 

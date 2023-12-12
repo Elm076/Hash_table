@@ -66,6 +66,20 @@ public:
 
     unsigned int getSize();
 
+    unsigned int getMaxColisiones();
+
+    unsigned int getNumMax10();
+
+    float getAverageCollisions();
+
+    unsigned int getTotalCollisions();
+
+    float getChargeFactor();
+
+    unsigned int getSizeTable();
+
+    void showTableState();
+
     std::vector<Airport> getAirports();
 
     ~ThashAirp() = default;
