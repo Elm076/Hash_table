@@ -10,23 +10,29 @@
 #include <list>
 #include <iterator>
 #include <map>
+#include "ThashAirp.h"
 #include "Airport.h"
 #include "Route.h"
 #include "Airline.h"
 
 class VuelaFlight {
 private:
-    std::vector<Airport> airports;
-    std::list<Route> routes;
-    std::map<std::string,Airline> work;
+    ThashAirp airports = ThashAirp(76368,0.7);
+    std::multimap<std::string,Route> origRoutes;
+    std::multimap<std::string,Route*> destRoutes;
+    std::map<std::string,Airline> airlines;
 public:
     VuelaFlight() = default;
 
     VuelaFlight(std::string airports_file, std::string routes_file, std::string airlines_file);
 
-    const std::vector<Airport> &getAirports() const;
+    const std::multimap<std::string,Route> &getOrigRoutes() const;
 
-    const std::list<Route> &getRoutes() const;
+    const std::multimap<std::string,Route> &getDestRoutes() const;
+
+    Airport& searchAirport(std::string iataAirport);
+
+    unsigned int getNumAirports();
 
     Route& origDestRoutesSearch(const std::string& airportIataOrig, const std::string& airportIataDest);
 
@@ -38,7 +44,13 @@ public:
 
     Airline& searchAirline(std::string airlineIcao);
 
-    std::vector<Airline> searchActiveAirline();
+    const std::vector<Airport> getAirports();
+
+    void deleteAirport(std::string iataAirport);
+
+    void deleteInactiveAirports();
+
+    //std::vector<Airline> searchActiveAirline();
 };
 
 

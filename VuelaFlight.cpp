@@ -50,18 +50,18 @@ VuelaFlight::VuelaFlight(std::string airports_file, std::string routes_file, std
                 line = "";
                 columns_airports.clear();
                 UTM location = UTM(strLatitude, strLongitude);
-                airports.push_back(Airport(std::stoi(id), iata, type, name, location, continent, country_iso));
+                Airport airp(std::stoi(id), iata, type, name, location, continent, country_iso);
+                airports.push(iata,airp);
             }
         }
 
         airports_stream.close();
 
-        std::cout << " Dynamic_container with airports initialized." << std::endl << " Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
+        std::cout << " Hash Table with airports initialized." << std::endl << " Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
     } else {
         std::cout << "Fatal error opening the file" << std::endl;
     }
 
-    std::sort(airports.begin(), airports.end());
 
 
     std::ifstream airlines_stream;
@@ -101,14 +101,14 @@ VuelaFlight::VuelaFlight(std::string airports_file, std::string routes_file, std
                 columns_airlines.clear();
 
                 Airline line_airline(std::stoul(id),icao,name,country,real_active);
-                work.insert(std::pair<std::string,Airline>(icao,line_airline));
+                airlines.insert(std::pair<std::string,Airline>(icao, line_airline));
 
             }
         }
 
         airports_stream.close();
 
-        std::cout << " AVL with airlines initialized./n Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
+        std::cout << " AVL with airlines initialized" << std::endl << "Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
     } else {
         std::cout << "Fatal error opening the file" << std::endl;
     }
@@ -148,29 +148,51 @@ VuelaFlight::VuelaFlight(std::string airports_file, std::string routes_file, std
                 Airline airlineObject(airline);
 
                 //search the airline needed to build the route
-                Airline* realAirline = &work.find(airlineObject.getIcao())->second;
+                Airline* realAirline = &airlines.find(airlineObject.getIcao())->second;
 
                 //search the airports in the data base and build the route to push it after.
-                Airport *real_orig = &*std::find(airports.begin(), airports.end(),orig);
-                Airport *real_dest = &*std::find(airports.begin(),airports.end(),dest);
+                Airport *real_orig = airports.search(orig_airport);
+                Airport *real_dest = airports.search(dest_airport);
                 //build the new route
                 Route line_route(realAirline,real_orig,real_dest);
                 //push the new route on the linkedList
-                routes.push_back(line_route);
+                origRoutes.insert(std::pair<std::string,Route>(orig_airport,line_route));
+                destRoutes.insert(std::pair<std::string,Route*>(dest_airport,&line_route));
                 //link recent route to his airline.
-                realAirline->linkAirRoute(&routes.back());
+                realAirline->linkAirRoute(&origRoutes.end()->second);
             }
         }
 
         airports_stream.close();
 
-        std::cout << " Linked_list with routes initialized./n Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
+        std::cout << " Linked_list with routes initialized" << std::endl <<"Reading Time: " << ((clock() - t_ini) / (float) CLOCKS_PER_SEC) << " secs." << std::endl;
     } else {
         std::cout << "Fatal error opening the file" << std::endl;
     }
 
 }
 
+Airport& VuelaFlight::searchAirport(std::string iataAirport) {
+    return *airports.search(iataAirport);
+}
+
+unsigned int VuelaFlight::getNumAirports() {
+    return airports.getSize();
+}
+
+const std::vector<Airport> VuelaFlight::getAirports() {
+    return airports.getAirports();
+}
+
+void VuelaFlight::deleteAirport(std::string iataAirport) {
+    if (airports.pop(iataAirport)){
+        std::cout << "Airport " << iataAirport << " deleted" << std::endl;
+    }
+    else{
+        std::cout << "Airport " << iataAirport << " NOT deleted, it wasn't stored in the database" << std::endl;
+    }
+}
+/*
 Route& VuelaFlight::origDestRoutesSearch(const std::string& airportIataOrig, const std::string& airportIataDest) {
     std::list<Route>::iterator iterator = routes.begin();
     unsigned int count = 0;
@@ -184,7 +206,8 @@ Route& VuelaFlight::origDestRoutesSearch(const std::string& airportIataOrig, con
     }
     throw std::invalid_argument("---FATAL ERROR-- Doesn't exist a route in the database specified with the airports given");
 }
-
+*/
+/*
 std::vector<Route> VuelaFlight::origRoutesSearch(std::string airportIataOrig) {
     std::list<Route>::iterator iterator = routes.begin();
     unsigned int count = 0;
@@ -203,7 +226,8 @@ std::vector<Route> VuelaFlight::origRoutesSearch(std::string airportIataOrig) {
     }
     return found_routes;
 }
-
+*/
+/*
 std::vector<Airport> VuelaFlight::countryAirportSearch(std::string country) {
     std::list<Route>::iterator iterator = routes.begin();
     unsigned int count = 0;
@@ -223,42 +247,39 @@ std::vector<Airport> VuelaFlight::countryAirportSearch(std::string country) {
     }
     return found_airports;
 }
-
+*/
+/*
 void VuelaFlight::addNewRoute(std::string origAirportIata, std::string destAirportIata, std::string airline) {
-    Airport orig_to_search(origAirportIata);
-    Airport* orig = &*std::find(airports.begin(), airports.end(),orig_to_search);
+    Airport* orig = airports.search(destAirportIata);
     if (orig == nullptr){
         throw std::invalid_argument("---FATAL ERROR-- Doesn't exist a route in the database specified with the origin airport IATA given");
     }
-    Airport dest_to_search(destAirportIata);
-    Airport* dest = &*std::find(airports.begin(), airports.end(),dest_to_search);
+    Airport* dest = airports.search(destAirportIata);
     if (dest == nullptr){
         throw std::invalid_argument("---FATAL ERROR-- Doesn't exist a route in the database specified with the destination airport IATA given");
     }
     Airline auxAirline(airline);
-    Route new_route(&work.find(auxAirline.getIcao())->second,orig,dest);
+    Route new_route(&airlines.find(auxAirline.getIcao())->second, orig, dest);
     routes.push_back(new_route);
 
 }
-
-const std::vector<Airport> &VuelaFlight::getAirports() const {
-    return airports;
-}
-
+*/
+/*
 const std::list<Route> &VuelaFlight::getRoutes() const {
     return routes;
 }
 
 Airline& VuelaFlight::searchAirline(std::string airlineIcao) {
-    Airline result = work.find(airlineIcao)->second;
+    Airline result = airlines.find(airlineIcao)->second;
 
     std::cout << "Data of airline: Id " << result.getId() << ", Name " << result.getName() << ", country " << result.getCountry() << " and is active? " << result.isActive();
     return result;
 }
-
+*/
+/*
 //FIX THIS
 std::vector<Airline> VuelaFlight::searchActiveAirline() {
-    std::vector<Airline*> data = work.readAVL();
+    std::vector<Airline*> data = airlines.readAVL();
     std::vector<Airline> result;
     for (unsigned int i=0; i < data.used_tam();i++){
         if(data[i]->isActive())
@@ -266,5 +287,5 @@ std::vector<Airline> VuelaFlight::searchActiveAirline() {
     }
     return result;
 }
-
+*/
 

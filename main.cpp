@@ -17,5 +17,11 @@
 int main() {
     std::cout << ".....Start of the program ....." << std::endl;
 
+
+    VuelaFlight dataBase("..\\aeropuertos_v3.csv", "..\\rutas_v1.csv", "..\\aerolineas_v1.csv");
+    std::cout << std::endl;
+
+
+
     std::cout << "----- End of the program -----" << std::endl;
 }
